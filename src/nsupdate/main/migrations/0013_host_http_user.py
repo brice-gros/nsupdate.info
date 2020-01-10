@@ -4,6 +4,19 @@ from django.db import migrations, models
 import nsupdate.main.models
 
 
+def gen_http_user(apps, schema_editor):
+    Host = apps.get_model('main', 'Host')
+    http_user_set = set()
+    all_hosts = [row for row in Host.objects.all() ]
+    for row in all_hosts:
+        http_user = nsupdate.main.models._http_user_generator()
+        while http_user in http_user_set:
+            http_user = nsupdate.main.models._http_user_generator()
+        http_user_set.add(http_user)
+        row.http_user = http_user
+    for row in all_hosts:
+        row.save(update_fields=['http_user'])
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,6 +27,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='host',
             name='http_user',
-            field=models.CharField(default=nsupdate.main.models._http_user_generator, max_length=30, unique=True, verbose_name='http user'),
+            field=models.CharField(max_length=30, unique=True, verbose_name='http user', null=True, default=None),
+        ),
+        migrations.RunPython(gen_http_user, reverse_code=migrations.RunPython.noop),
+        migrations.AlterField(
+            model_name='host',
+            name='http_user',
+            field=models.CharField(max_length=30, unique=True, verbose_name='http user', null=False, default=nsupdate.main.models._http_user_generator),
         ),
     ]
