@@ -27,7 +27,7 @@ from .iptools import normalize_ip
 from .forms import (CreateHostForm, EditHostForm, CreateRelatedHostForm, EditRelatedHostForm,
                     CreateDomainForm, EditDomainForm, CreateUpdaterHostConfigForm, EditUpdaterHostConfigForm)
 from .models import Host, RelatedHost, Domain, ServiceUpdaterHostConfig
-
+from nsupdate.utils.http import get_original_remote_address
 
 class GenerateSecretView(UpdateView):
     model = Host
@@ -224,7 +224,8 @@ class AddHostView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         try:
-            dnstools.add(self.object.get_fqdn(), normalize_ip(self.request.META['REMOTE_ADDR']))
+            original_remote_ip = get_original_remote_address(self.request)
+            dnstools.add(self.object.get_fqdn(), normalize_ip(original_remote_ip))
         except dnstools.Timeout:
             success, level, msg = False, messages.ERROR, 'Timeout - communicating to name server failed.'
         except dnstools.NameServerNotAvailable:
@@ -286,7 +287,10 @@ class HostView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(HostView, self).get_context_data(**kwargs)
         context['nav_overview'] = True
-        context['remote_addr'] = normalize_ip(self.request.META['REMOTE_ADDR'])
+        
+        original_remote_ip = get_original_remote_address(self.request)
+        ipaddr = normalize_ip(original_remote_ip)
+        context['remote_addr'] = ipaddr
         return context
 
 

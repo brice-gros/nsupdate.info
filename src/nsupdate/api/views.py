@@ -25,7 +25,7 @@ from ..main.models import Host
 from ..main.dnstools import (FQDN, update, delete, check_ip, put_ip_into_session,
                              SameIpError, DnsUpdateError, NameServerNotAvailable)
 from ..main.iptools import normalize_ip
-
+from nsupdate.utils.http import get_original_remote_address
 
 def Response(content, status=200):
     """
@@ -47,7 +47,8 @@ def myip_view(request, logger=None):
     """
     # Note: keeping this as a function-based view, as it is frequently used -
     # maybe it is slightly more efficient than class-based.
-    ipaddr = normalize_ip(request.META['REMOTE_ADDR'])
+    original_remote_ip = get_original_remote_address(request)
+    ipaddr = normalize_ip(original_remote_ip)
     logger.debug("detected remote ip address: %s" % ipaddr)
     return Response(ipaddr)
 
@@ -68,7 +69,8 @@ class DetectIpView(View):
         # so the session cookie is not received here - thus we access it via
         # the sessionid:
         s = engine.SessionStore(session_key=sessionid)
-        ipaddr = normalize_ip(request.META['REMOTE_ADDR'])
+        original_remote_ip = get_original_remote_address(request)
+        ipaddr = normalize_ip(original_remote_ip)
         # as this is NOT the session automatically established and
         # also saved by the framework, we need to use save=True here
         put_ip_into_session(s, ipaddr, save=True)
@@ -248,7 +250,8 @@ class NicUpdateView(View):
             return Response('badagent')
         ipaddr = request.GET.get('myip')
         if not ipaddr:  # None or ''
-            ipaddr = normalize_ip(request.META.get('REMOTE_ADDR'))
+            original_remote_ip = get_original_remote_address(request)
+            ipaddr = normalize_ip(original_remote_ip)
         secure = request.is_secure()
         return _update_or_delete(host, ipaddr, secure, logger=logger, _delete=delete)
 
@@ -303,7 +306,8 @@ class AuthorizedNicUpdateView(View):
         # and logged-in usage - thus misbehaved user agents are no problem.
         ipaddr = request.GET.get('myip')
         if not ipaddr:  # None or empty string
-            ipaddr = normalize_ip(request.META.get('REMOTE_ADDR'))
+            original_remote_ip = get_original_remote_address(request)
+            ipaddr = normalize_ip(original_remote_ip)
         secure = request.is_secure()
         return _update_or_delete(host, ipaddr, secure, logger=logger, _delete=delete)
 

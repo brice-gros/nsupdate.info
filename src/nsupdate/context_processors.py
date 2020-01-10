@@ -11,6 +11,7 @@ import time
 
 from .main.dnstools import put_ip_into_session
 from .main.iptools import normalize_ip
+from nsupdate.utils.http import get_original_remote_address
 
 from django.conf import settings
 from django.db import OperationalError
@@ -38,7 +39,8 @@ def update_ips(request):
     s = request.session
     t_now = int(time.time())
     # update and keep fresh using info from the request we have anyway:
-    ipaddr = normalize_ip(request.META['REMOTE_ADDR'])
+    original_remote_ip = get_original_remote_address(request)
+    ipaddr = normalize_ip(original_remote_ip)
     put_ip_into_session(s, ipaddr, max_age=MAX_IP_AGE / 2)
     # remove stale data to not show outdated IPs (e.g. after losing IPv6 connectivity):
     for key in ['ipv4', 'ipv6', ]:
