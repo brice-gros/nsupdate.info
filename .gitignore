@@ -2,10 +2,13 @@
 *.log
 *.pot
 *.pyc
-local_settings.py
 .coverage
 .idea/
 .cache/
 *.sqlite
+.eggs
 *.egg-info
 dist/
+local_settings.py
+_version.py
+.venv

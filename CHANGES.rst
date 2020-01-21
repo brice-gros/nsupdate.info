@@ -21,7 +21,8 @@ New Features:
 Fixes:
 
 - fixed misc. crashes
-- fixed retrieval of remote address by making use of HTTTP_X_FORWRADED_FOR if provided 
+- fixed Domain.generate_ns_secret() storing bytes object into Domain.nameserver_update_secret leading to trying to insert the string representation of the bytes object, so 91 characters in a varchar(88)
+- fixed retrieval of remote address by making use of HTTTP_X_FORWRADED_FOR if provided
 
 Other changes:
 
