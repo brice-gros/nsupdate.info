@@ -7,7 +7,6 @@ AFTER that, you can upgrade to 0.10.x or any later version (and then run the
 migrations for that version). For upgrading and migration help, please see
 the docs that match the version you are upgrading to.
 
-
 Release 0.13.0 (not released yet)
 ---------------------------------
 
@@ -17,11 +16,13 @@ New Features:
   without causing database accesses.
 - django-admin faults: show/reset api auth faults counter
 - add api_auth_faults column to django admin's Hosts view
+- add http_user field to Host table to be used for basic auth instead of fqdn due to limitation in the length of the username from some routers
 
 Fixes:
 
 - fixed misc. crashes
 - fixed Domain.generate_ns_secret() storing bytes object into Domain.nameserver_update_secret leading to trying to insert the string representation of the bytes object, so 91 characters in a varchar(88)
+- fixed retrieval of remote address by making use of HTTTP_X_FORWRADED_FOR if provided
 
 Other changes:
 

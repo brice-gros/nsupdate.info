@@ -14,7 +14,7 @@ Usage:
     Logging formatter configuration:
 
     'format': '[%(asctime)s] %(levelname)s %(message)s ' \
-              '[ip: %(request.META.REMOTE_ADDR)s, ua: "%(request.META.HTTP_USER_AGENT)s"]'
+              '[forwarded_ip: %(request.META.HTTP_X_FORWARDED_FOR)s, remote_ip: %(request.META.REMOTE_ADDR)s, ua: "%(request.META.HTTP_USER_AGENT)s"]'
 
 Based on code from (but heavily modified/refactored):
     https://derrickpetzold.com/p/django-requst-logging-json/
@@ -85,7 +85,8 @@ def _build_request_info(request):
     # transferred into a normal dict and then the logging format() is still
     # failing when it encounters an unknown key.
     # XXX this is ugly and prone to fail for other format strings
-    for key in ['request.META.REMOTE_ADDR',
+    for key in ['request.META.HTTP_X_FORWARDED_FOR',
+                'request.META.REMOTE_ADDR',
                 'request.META.HTTP_USER_AGENT',
                 ]:
         if key not in d:

@@ -259,7 +259,7 @@ LOGGING = {
         },
         'stderr_request': {
             'format': '[%(asctime)s] %(levelname)s %(message)s '
-                      '[ip: %(request.META.REMOTE_ADDR)s, ua: "%(request.META.HTTP_USER_AGENT)s"]',
+                      '[forwarded_ip: %(request.META.HTTP_X_FORWARDED_FOR)s, remote_ip: %(request.META.REMOTE_ADDR)s, ua: "%(request.META.HTTP_USER_AGENT)s"]',
         },
     },
 }
